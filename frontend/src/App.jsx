@@ -1,230 +1,131 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import LoginPage from './LoginPage';
-import SignupPage from './SignupPage';
+import React, { useEffect, useState } from 'react';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import HomePage from './pages/HomePage';
+
+const API_BASE = '/api';
+
+async function requestJson(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  const data = await response.json().catch(() => ({}));
+  return { response, data };
+}
 
 function App() {
-  const [bootLoading, setBootLoading] = useState(true);
-  const [page, setPage] = useState('login');
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [postText, setPostText] = useState('');
-  const [postLoading, setPostLoading] = useState(false);
-  const [feedLoading, setFeedLoading] = useState(false);
-  const [feedError, setFeedError] = useState('');
-  const [feedSuccess, setFeedSuccess] = useState('');
-
-  const endpoint = useMemo(
-    () => ({
-      login: '/api/auth/login.php',
-      register: '/api/auth/register.php',
-      me: '/api/auth/me.php',
-      logout: '/api/auth/logout.php',
-      listPosts: '/api/posts/list.php',
-      createPost: '/api/posts/create.php',
-    }),
-    [],
-  );
-
-  const loadPosts = async () => {
-    setFeedError('');
-    setFeedLoading(true);
-    try {
-      const response = await fetch(endpoint.listPosts, { credentials: 'include' });
-      const data = await response.json();
-
-      if (!response.ok || !data.ok) {
-        setFeedError(data.message || 'Impossible de charger le fil.');
-        return;
-      }
-
-      setPosts(Array.isArray(data.posts) ? data.posts : []);
-    } catch {
-      setFeedError('Impossible de charger le fil.');
-    } finally {
-      setFeedLoading(false);
-    }
-  };
+  const [page, setPage] = useState('login');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await fetch(endpoint.me, { credentials: 'include' });
-        if (!response.ok) {
-          setUser(null);
-          return;
-        }
+    const checkSession = async () => {
+      const { response, data } = await requestJson('/auth/me.php', {
+        method: 'GET',
+        headers: {},
+      });
 
-        const data = await response.json();
-        if (data.ok) {
-          setUser(data.user);
-        }
-      } catch {
+      if (response.ok && data.user) {
+        setIsLoggedIn(true);
+        setUser(data.user);
+      } else {
+        setIsLoggedIn(false);
         setUser(null);
-      } finally {
-        setBootLoading(false);
       }
+
+      setIsBootstrapping(false);
     };
 
-    fetchSession();
-  }, [endpoint.me]);
+    checkSession();
+  }, []);
+
+  const handleLogin = async (credentials) => {
+    setLoading(true);
+    setError('');
+
+    const { response, data } = await requestJson('/auth/login.php', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok || !data.ok) {
+      setError(data.message || 'Connexion impossible.');
+      setLoading(false);
+      return false;
+    }
+
+    setIsLoggedIn(true);
+    setUser(data.user || null);
+    setLoading(false);
+    return true;
+  };
+
+  const handleSignup = async (payload) => {
+    setLoading(true);
+    setError('');
+
+    const { response, data } = await requestJson('/auth/register.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok || !data.ok) {
+      const message = data.message || (Array.isArray(data.errors) ? data.errors.join(' ') : 'Inscription impossible.');
+      setError(message);
+      setLoading(false);
+      return false;
+    }
+
+    const loggedIn = await handleLogin({ email: payload.email, mdp: payload.mdp });
+    setLoading(false);
+    return loggedIn;
+  };
 
   const handleLogout = async () => {
-    try {
-      await fetch(endpoint.logout, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } finally {
-      setUser(null);
-      setPosts([]);
-      setPostText('');
-      setFeedError('');
-      setFeedSuccess('');
-      setPage('login');
-    }
+    await requestJson('/auth/logout.php', { method: 'POST' });
+    setIsLoggedIn(false);
+    setUser(null);
+    setPage('login');
   };
 
-  const handleCreatePost = async (event) => {
-    event.preventDefault();
-    setFeedError('');
-    setFeedSuccess('');
+  if (isBootstrapping) {
+    return null;
+  }
 
-    if (postText.trim() === '') {
-      setFeedError('Ecris un contenu avant de publier.');
-      return;
-    }
-
-    setPostLoading(true);
-    try {
-      const response = await fetch(endpoint.createPost, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ contenu: postText.trim(), image_url: null }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.ok) {
-        setFeedError(data.message || 'Publication refusee.');
-        return;
-      }
-
-      setPostText('');
-      setFeedSuccess('Post publie avec succes.');
-      await loadPosts();
-    } catch {
-      setFeedError('Impossible de publier le post.');
-    } finally {
-      setPostLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      loadPosts();
-    }
-  }, [user]);
-
-  if (bootLoading) {
-    return (
-      <div className="login-container">
-        <div className="left-side">
-          <div className="avatar-placeholder">
-            <img src="/avatar.png" alt="Avatar Ynov" className="avatar-img" />
-          </div>
-          <h1 className="welcome-title">
-            <span className="text-black">Bienvenue sur votre</span>
-            <br />
-            <span className="text-gradient">réseau social </span>
-            <span className="text-teal">Ynov.</span>
-          </h1>
-        </div>
-        <div className="right-side">
-          <div className="login-card">
-            <p>Chargement de la session...</p>
-          </div>
-        </div>
-      </div>
+  if (!isLoggedIn) {
+    return page === 'login' ? (
+      <LoginPage
+        onSwitch={() => {
+          setError('');
+          setPage('signup');
+        }}
+        onLogin={handleLogin}
+        loading={loading}
+        error={error}
+      />
+    ) : (
+      <SignupPage
+        onSwitch={() => {
+          setError('');
+          setPage('login');
+        }}
+        onSignup={handleSignup}
+        loading={loading}
+        error={error}
+      />
     );
   }
 
-  if (user) {
-    return (
-      <div className="login-container">
-        <div className="left-side">
-          <div className="avatar-placeholder">
-            <img src="/avatar.png" alt="Avatar Ynov" className="avatar-img" />
-          </div>
-          <h1 className="welcome-title">
-            <span className="text-black">Bienvenue </span>
-            <br />
-            <span className="text-gradient">{user.prenom} {user.nom}</span>
-          </h1>
-        </div>
-
-        <div className="right-side">
-          <div className="login-card">
-            <div className="logo-placeholder">
-              <img src="/logo-ynov.png" alt="Logo Ynov" className="logo-img" />
-            </div>
-
-            <div className="auth-feedback auth-success">Connecte en tant que {user.email}</div>
-
-            <form className="feed-form" onSubmit={handleCreatePost}>
-              <textarea
-                className="feed-textarea"
-                placeholder="Partage ton actualite, projet ou recherche..."
-                value={postText}
-                onChange={(event) => setPostText(event.target.value)}
-                rows={4}
-              />
-              <button type="submit" className="login-button" disabled={postLoading}>
-                {postLoading ? 'Publication...' : 'Publier un post'}
-              </button>
-            </form>
-
-            {feedError ? <div className="auth-feedback auth-error">{feedError}</div> : null}
-            {feedSuccess ? <div className="auth-feedback auth-success">{feedSuccess}</div> : null}
-
-            <div className="feed-list">
-              {feedLoading ? (
-                <p className="feed-empty">Chargement du fil...</p>
-              ) : posts.length === 0 ? (
-                <p className="feed-empty">Aucun post pour le moment.</p>
-              ) : (
-                posts.map((post) => (
-                  <article className="feed-item" key={post.id_post}>
-                    <div className="feed-author">{post.prenom} {post.nom}</div>
-                    <div className="feed-date">{new Date(post.date_publi).toLocaleString('fr-FR')}</div>
-                    <p className="feed-content">{post.contenu}</p>
-                  </article>
-                ))
-              )}
-            </div>
-
-            <button type="button" className="login-button" onClick={handleLogout}>
-              Se deconnecter
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {page === 'login' ? (
-        <LoginPage
-          onSwitch={() => setPage('signup')}
-          endpoint={endpoint}
-          onLoginSuccess={(loggedUser) => setUser(loggedUser)}
-        />
-      ) : (
-        <SignupPage onSwitch={() => setPage('login')} endpoint={endpoint} />
-      )}
-    </>
-  );
+  return <HomePage user={user} onLogout={handleLogout} />;
 }
 
 export default App;

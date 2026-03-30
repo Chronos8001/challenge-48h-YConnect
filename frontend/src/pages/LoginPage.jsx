@@ -2,46 +2,18 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 
-const LoginPage = ({ onSwitch, endpoint, onLoginSuccess }) => {
-  const [form, setForm] = useState({ email: '', mdp: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+const LoginPage = ({ onSwitch, onLogin, loading, error }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await fetch(endpoint.login, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.ok) {
-        setError(data.message || 'Connexion refusée.');
-        return;
-      }
-
-      onLoginSuccess(data.user);
-    } catch {
-      setError('Impossible de joindre le serveur.');
-    } finally {
-      setLoading(false);
-    }
+    await onLogin({ email: email.trim(), mdp: password });
   };
 
   return (
     <div className="login-container">
+      {/* --- PARTIE GAUCHE (Texte et Avatar) --- */}
       <div className="left-side">
         <div className="avatar-placeholder">
           <img src="/avatar.png" alt="Avatar Ynov" className="avatar-img" />
@@ -54,6 +26,7 @@ const LoginPage = ({ onSwitch, endpoint, onLoginSuccess }) => {
         </h1>
       </div>
 
+      {/* --- PARTIE DROITE (Formulaire) --- */}
       <div className="right-side">
         <div className="login-card">
           <div className="logo-placeholder">
@@ -65,10 +38,9 @@ const LoginPage = ({ onSwitch, endpoint, onLoginSuccess }) => {
               <FaEnvelope className="input-icon" />
               <input
                 type="email"
-                name="email"
                 placeholder="votreadressemail@ynov.com"
-                value={form.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
             </div>
@@ -77,15 +49,14 @@ const LoginPage = ({ onSwitch, endpoint, onLoginSuccess }) => {
               <FaLock className="input-icon" />
               <input
                 type="password"
-                name="mdp"
                 placeholder="Mot de passe"
-                value={form.mdp}
-                onChange={handleChange}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 required
               />
             </div>
 
-            {error ? <div className="auth-feedback auth-error">{error}</div> : null}
+            {error ? <p className="form-error">{error}</p> : null}
 
             <div className="form-actions">
               <a 

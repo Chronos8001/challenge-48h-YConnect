@@ -9,6 +9,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost/challenge-48h-YConnect',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/back'),
       },
     },
   },

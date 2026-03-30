@@ -1,6 +1,5 @@
 @font-face {
   font-family: 'CoolveticaRg'; 
-  /* Remplace "NomDeTonFichier.otf" par le VRAI nom de ton fichier ! */
   src: url('./assets/fonts/CoolveticaRg.otf') format('opentype'); 
 }
 

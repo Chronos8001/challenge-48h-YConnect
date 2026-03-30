@@ -1,0 +1,51 @@
+.post-card {
+  background-color: var(--white);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+}
+
+.post-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1rem;
+}
+
+.post-card-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar-img-tiny {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #f0f0f0; /* Fond par défaut si l'image charge pas */
+}
+
+.author-details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 2px;
+}
+
+.post-time {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.post-menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-light);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.post-card-body {
+  padding: 2rem 0;
+  min-height: 150px; /* Pour donner du volume comme sur ta maquette */
+}

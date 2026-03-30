@@ -1,0 +1,110 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  gap: 2rem;
+}
+
+/* Le carré du logo */
+.logo-placeholder {
+  background-color: var(--teal);
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo-placeholder:hover {
+  transform: scale(1.05);
+}
+
+.logo-img {
+  width: 35px;
+  height: auto;
+  filter: brightness(0) invert(1); /* Rend le logo blanc */
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* Barre de recherche */
+.search-group {
+  flex: 1;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg);
+  border-radius: 15px;
+  padding: 0 1rem;
+}
+
+.search-icon {
+  color: var(--text-light);
+  font-size: 1.2rem;
+}
+
+.search-group input {
+  width: 100%;
+  padding: 15px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: var(--text-dark);
+  font-family: inherit;
+  font-weight: bold;
+}
+
+/* Zone des onglets (pillule blanche) */
+.header-tabs {
+  display: flex;
+  background-color: var(--white);
+  border-radius: 15px;
+  padding: 5px 15px;
+  gap: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 10px;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.tab-btn.active {
+  color: var(--teal);
+}
+
+/* La petite barre en dessous de l'onglet actif */
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background-color: var(--teal);
+  border-radius: 5px;
+}
+
+.avatar-img-small {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
