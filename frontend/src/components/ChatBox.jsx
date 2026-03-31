@@ -1,16 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import './ChatBox.css';
-
-const API_KEY = 'AIzaSyB-10WPZEYcusNjumZ5Hp_cFxI5Vv0lpk0';
-const genAI = new GoogleGenerativeAI(API_KEY);
 
 export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [chatSession, setChatSession] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -20,14 +15,6 @@ export default function ChatBox() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    if (isOpen && !chatSession) {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const session = model.startChat({ history: [] });
-      setChatSession(session);
-    }
-  }, [isOpen, chatSession]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -48,12 +35,16 @@ export default function ChatBox() {
     setIsLoading(true);
 
     try {
-      if (!chatSession) {
-        throw new Error('Chat session not initialized');
-      }
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: messageText }),
+      });
 
-      const response = await chatSession.sendMessage(messageText);
-      const responseText = response.response.text();
+      if (!response.ok) throw new Error('API request failed');
+
+      const data = await response.json();
+      const responseText = data.message || 'No response';
 
       const aiMessage = {
         id: Date.now() + 1,
