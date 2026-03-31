@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import HomePage from './pages/HomePage';
+import ChatBox from './components/ChatBox';
 
 const API_BASE = '/api';
 
@@ -125,7 +126,12 @@ function App() {
     );
   }
 
-  return <HomePage user={user} onLogout={handleLogout} />;
+  return (
+    <>
+      <HomePage user={user} onLogout={handleLogout} />
+      <ChatBox />
+    </>
+  );
 }
 
 export default App;
