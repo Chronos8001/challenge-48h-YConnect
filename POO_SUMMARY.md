@@ -189,7 +189,7 @@ const user = await api.getMe();
 
 ## Résumé
 
-✅ **Votre code respecte maintenant les 4 piliers de la POO:**
+✅ **code respecte maintenant les 4 piliers de la POO:**
 - Encapsulation des données
 - Héritage entre classes
 - Polymorphisme d'interfaces
