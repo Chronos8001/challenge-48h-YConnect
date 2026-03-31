@@ -35,16 +35,20 @@ export default function ChatBox() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch('http://localhost/challenge-48h-YConnect/back/ai/chat.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText }),
       });
 
-      if (!response.ok) throw new Error('API request failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`API Error ${response.status}`);
+      }
 
       const data = await response.json();
-      const responseText = data.message || 'No response';
+      const responseText = data.message || 'Réponse reçue';
 
       const aiMessage = {
         id: Date.now() + 1,
