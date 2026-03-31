@@ -665,8 +665,8 @@ function HomePage({ user, onLogout }) {
               <button type="button" className={`nav-btn ${rightPanel === 'chat' ? 'active' : ''}`} onClick={() => setRightPanel('chat')}>
                 <img src="/icon-message.svg" alt="Chat" />
               </button>
-              <button type="button" className={`nav-btn ${rightPanel === 'add' ? 'active' : ''}`} onClick={() => setRightPanel('add')}>
-                <img src="/icon-post.svg" alt="Ajouter" />
+              <button type="button" className="nav-btn" onClick={() => window.location.href = 'https://ymatch.ynov.com/'}>
+                <img src="/icon-post.svg" alt="YMatch" />
               </button>
             </nav>
             <button type="button" className={`user-profile ${rightPanel === 'profile' ? 'active' : ''}`} onClick={() => setRightPanel('profile')}>
@@ -976,29 +976,6 @@ function HomePage({ user, onLogout }) {
                     </div>
                   </>
                 ) : null}
-              </div>
-            ) : null}
-
-            {rightPanel === 'add' ? (
-              <div className="panel-inner">
-                <div className="panel-title-row">
-                  <h3>Ajouter des amis</h3>
-                  <span>{suggestedContacts.length}</span>
-                </div>
-
-                {suggestedContacts.length === 0 ? <p className="status-text">Aucune suggestion.</p> : null}
-
-                {suggestedContacts.map((contact) => (
-                  <div className="contact-row" key={contact.id_user}>
-                    <button type="button" className="user-card-link" onClick={() => handleOpenUserProfile(contact)}>
-                      <UserCardShort
-                        name={`${contact.prenom || ''} ${contact.nom || ''}`.trim() || 'Etudiant'}
-                        role={contact.filiere || contact.email || 'Etudiant Ynov'}
-                      />
-                    </button>
-                    <AddFriendButton onClick={() => handleAddFriend(contact)} />
-                  </div>
-                ))}
               </div>
             ) : null}
           </div>
