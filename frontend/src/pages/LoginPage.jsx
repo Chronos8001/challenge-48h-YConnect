@@ -13,7 +13,6 @@ const LoginPage = ({ onSwitch, onLogin, loading, error }) => {
 
   return (
     <div className="login-container">
-      {/* --- PARTIE GAUCHE (Texte et Avatar) --- */}
       <div className="left-side">
         <div className="avatar-placeholder">
           <img src="/avatar.png" alt="Avatar Ynov" className="avatar-img" />
@@ -26,7 +25,6 @@ const LoginPage = ({ onSwitch, onLogin, loading, error }) => {
         </h1>
       </div>
 
-      {/* --- PARTIE DROITE (Formulaire) --- */}
       <div className="right-side">
         <div className="login-card">
           <div className="logo-placeholder">

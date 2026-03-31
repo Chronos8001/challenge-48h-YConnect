@@ -32,7 +32,6 @@ const SignupPage = ({ onSwitch, onSignup, loading, error }) => {
 
   return (
     <div className="signup-container">
-      {/* --- PARTIE GAUCHE (Texte et Avatar) --- */}
       <div className="left-side">
         <div className="avatar-placeholder">
           <img src={avatarImage} alt="Avatar Ynov" className="avatar-img" />
@@ -45,7 +44,6 @@ const SignupPage = ({ onSwitch, onSignup, loading, error }) => {
         </h1>
       </div>
 
-      {/* --- PARTIE DROITE (Formulaire d'inscription) --- */}
       <div className="right-side">
         <div className="signup-card">
           <div className="logo-placeholder">
